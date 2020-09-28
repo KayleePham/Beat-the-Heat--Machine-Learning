@@ -1,1 +1,1 @@
-# Beat-the-Heat
+Beat-the-Heat
