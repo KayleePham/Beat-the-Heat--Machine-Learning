@@ -1,0 +1,119 @@
+body, html {
+    background-color: rgba(255, 255, 255, 0.863);
+    margin: 0;
+    height: auto;
+    font-family: 'Rubik', sans-serif;
+}
+
+.dark-theme {
+    background-color: rgba(0, 0, 0, 0.863);
+    color: rgb(255, 255, 255);
+}
+
+#incidents {
+    display: block;
+    margin-left: 20%;
+    margin-right: 20%;
+
+}
+
+#d3DisplayData{
+    width: 200px;
+    height: 10px;
+}
+
+svg {
+    padding-left: 320px;
+}
+
+.toc {
+    border-style: solid;
+    border-width: .5px;
+    width: auto;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 20px;
+    padding-right: 20px;
+    display: inline-block;
+    top: 0;
+    background-color: rgb(238, 238, 238);
+    
+}
+
+#toc_title {
+    text-align:center;
+}
+
+.ptext {
+    position: absolute;
+    top: 25%;
+    width: 100%;
+    text-align: center;
+    color: white;
+    font-size: 50px;
+    letter-spacing: 7px;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.title {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    border-style: solid;
+    color: white;
+    max-width: 700px;
+    padding: 15px;
+}
+
+.content {
+    margin-left: 15%;
+    margin-right: 15%;
+    padding: 5px 80px;
+}
+
+.img1 {
+    background-image: url("../images/pexels-pixabay-68482.jpg");
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 600px;
+    width: 100%;
+    opacity: 0.90;
+    top: 0;
+
+}
+
+.diagrams {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+h2 {
+    text-align: center;
+    padding-top: 30px;
+    padding-bottom: 10px;
+    text-decoration: underline;
+}
+
+h5 {
+    text-align: center;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+p {
+    font-size: 20px;
+    font-weight: 500;
+    padding-bottom: 70px;
+}
+
+#sliderContainer {
+    text-align: center;
+    position: relative;
+    top: 800px;
+}

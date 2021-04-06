@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width">
+            <link href="css/style.css" rel="stylesheet" type="text/css">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <link rel="preconnect" href="https://fonts.gstatic.com">
+            <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300&display=swap" rel="stylesheet">
+            <title>Fire Prediction Using Machine Learning</title>
+
+            <script src="js/script.js"></script>
+            <script src="http://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+            <script src="assets/CA-counties-2012.json"></script>
+            <script src="js/interactive_map.js"></script>
+            <script src="assets/fires.json"></script>
+
+
+        </head>
+
+<body>
+<!-- Parallax Container -->
+<div class="img1">
+    <div class="ptext">
+        <div class="title">
+            Machine Learning: <br>
+            Wildfire Prediction
+        </div>
+    </div>
+
+</div>
+
+
+<!-- The content class is used to center all the content and the margins without changing the body element -->
+<div class="content">
+    <button onclick="darkmode()">Toggle Dark Mode</button>
+
+    <h2>Introduction</h2>
+    <div id="introduction">
+        <p>
+            Our Senior Design Project will be based on developing a machine learning model that will be able to predict the creation and spread of wildfires.  Wildfires
+            can be destructive and difficult to prepare for as they appear suddenly and spread rapidly.  In California, the occurrence of wildfires are relatively frequent
+            due to the dry nature of the state.  By developing a machine learning model that can predict the creation and spread of wildfires, more people and their properties
+            will be safe from the early preparations.
+        </p>
+    </div>
+
+    <!-- Table of Contents -->
+    <div class="toc">
+        <h3 id="toc_title">Contents</h3>
+        <ul>
+            <li><a href="#definition">What is Machine Learning?</a></li>
+            <li><a href="#overview">Project Design Overview</a></li>
+            <li><a href="#preparation">Preparation</a></li>
+            <li><a href="#modeling">Model Building</a></li>
+            <li><a href="#evaluation">Quality Measurement</a></li>
+            <li><a href="#results">Results</a></li>
+        </ul>
+    </div>
+
+    <div id="definition">
+        <h2>What is Machine Learning?</h2>
+        <p>
+            According to <a href="https://www.expert.ai/blog/machine-learning-definition/#:~:text=Machine%20learning%20is%20an%20application,use%20it%20learn%20for%20themselves.">expert.ai</a>
+            machine learning is "an application of artificial intelligence (AI) that provides systems the ability to automatically learn and improve from experience without being explicitly programmed.
+            Machine learning focuses on the development of computer programs that can access data and use it learn for themselves."  In short, machine learning is an application of AI that uses
+            datasets to predict target outcomes on problems that would be difficult or nearly impossible otherwise.
+        </p>
+    </div>
+
+    <div id="overview">
+        <h2>Project Design Overview</h2>
+        <img src="images/Project Diagram-Overview.png" class="diagrams">
+        <h5>Fig 1: Project Design Overview</h5>
+        <p>
+            Our project is divided into three major phases: Preparation, Model Building, and Quality Measurement as shown in Fig. 1.
+            The purpose of these three phases are to categorize each machine learning process into high-level chunks.  The major phases
+            in machine learning are the data, model buidling, and the evaluation phase.
+        </p>
+
+        <h2 id="preparation">Preparation</h2>
+        <img src="images/Project Diagram-Preparation.png" class="diagrams">
+        <h5>Fig 2: Project Preparation Design</h5>
+        <p>
+            In machine learning, the data phase is the most crucial phase because machine learning models use the data to form predictions.
+            If the data is unusable or preprocessed incorrectly, the results will be inaccurate leading to an invalid project.
+            In this project, the Preparation Phase handles all the data related tasks.  The high-level tasks are
+            <a href="https://en.wikipedia.org/wiki/Data_exploration#:~:text=Data%20exploration%20is%20an%20approach,through%20traditional%20data%20management%20systems.">
+                data exploration
+            </a>
+
+            and
+
+            <a href="https://en.wikipedia.org/wiki/Data_pre-processing">
+                data preprocessing
+            </a>
+            .
+        </p>
+
+        <h2 id="modeling">Model Building</h2>
+        <img src="images/Project Diagram-Neural Network.png" class="diagrams">
+        <h5>Fig 3: Project Model Building Design: Neural Network</h5>
+        <img src="images/Project Diagram-SVM.png" class="diagrams">
+        <h5>Fig 4: Project Model Building Design: Support Vector Machine</h5>
+        <p>
+            The modeling phase in machine learning is when the machine learning algorithms are applied on the preprocessed data.  In most cases, the algorithms are
+            provided in various different API's and allows the users to import the packages, plug in the data, and use the algorithms with little effort.  The modeling
+            phase takes three types of sub-datasets from the data preprocessed stage: train, validation, and test sub-datasets.  The models are trained using the
+            the train dataset, validated with the validation dataset, and tested using the test dataset.  The datasets used in the modeling phase are
+            constructed using historical dataset, so the models can derived or recognize patterns within the datasets.  In our project, the machine learning
+            process is the same as the general stage.  We train, valid, and test the models using the three types of preprocessed datasets.
+        </p>
+
+        <h2 id="evaluation">Quality Measurement</h2>
+        <img src="images/Project Diagram-Quality Measurement.png" class="diagrams">
+        <h5>Fig 5: Project Quality Measurement Design</h5>
+        <p>
+            The evaluation phase in machine learning is the stage when the prediction results from models, during the modeling phase, are compared to the
+            actual dataset and evaluated for accuracy.  This is the phase when we explore the usability of the models.  There are a wide range of
+            evaluation metrics that can be used that also depends on the type of problem being tackled (classification or regression).  In our project,
+            we will be using the classification metric, cross-validation and possibly regularization to validate and evaluation our models.
+        </p>
+
+        <div id="results">
+            <h2>Results</h2>
+            <p>
+                When the project is finished, we hope to be able to visualize the predictions and the data as shown in the examples below.
+            </p>
+        </div>
+
+        <!-- This is where all the d3 elements will be displayed -->
+        <div id="d3DisplayData">
+            <h4>California Fire Incidents</h4>
+            <h8></h8>
+        </div>
+
+        <div id="incidents"></div>
+
+        <div id="sliderContainer">
+            <input id="timeslide" type="range" min="0" max="7" value="0" step="1"/><br>
+            <span id="range">2013</span>
+        </div>
+    </div>
+</div>
+</body>
+</html></title>
+</head>
+<body>
+
+</body>
+</html>
