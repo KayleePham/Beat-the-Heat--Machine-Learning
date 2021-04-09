@@ -18,6 +18,22 @@ class PreprocessingAuxiliaryFunctions:
             county_shapes.append(shapes[i])
         return county_shapes
 
+    def read_geojson_geodf(self):
+        """ Loading county boundaries via geojson - returns arr of county geometry shapes """
+        # source: https://gis.data.ca.gov/datasets/8713ced9b78a4abb97dc130a691a8695_0?geometry=-146.754%2C31.049%2C-91.251%2C43.258&page=7
+        CA_cnty_geojson_link = 'https://opendata.arcgis.com/datasets/8713ced9b78a4abb97dc130a691a8695_0.geojson'
+        return gpd.read_file(CA_cnty_geojson_link)
+    
+    def extract_shapes_from_county_geometry(self, county_geodf):
+        # * storing all boundaries in list var shapes
+        return [x for x in county_geodf['geometry']]
+
+        shapes = [x for x in county_geodf['geometry']]
+        county_shapes = []
+        for i in range(58):
+            county_shapes.append(shapes[i])
+        return county_shapes
+
     def extracting_good_quality_vals_from_lut(self, lut):
         """ Returns good quality values via look up table (LUT) """
         # Include good quality based on MODLAND

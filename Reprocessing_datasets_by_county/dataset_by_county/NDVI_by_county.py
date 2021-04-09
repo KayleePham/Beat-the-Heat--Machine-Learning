@@ -28,7 +28,11 @@ from PreprocessingAuxiliaryFunctions import PreprocessingAuxiliaryFunctions as a
 def main():
     af = auxFuncts()
 
-    shapes = af.read_geojson()  # read in list of county boundaries
+    CA_counties_geodf = af.read_geojson_geodf()
+    shapes = af.extract_shapes_from_county_geometry(CA_counties_geodf)
+    print(CA_counties_geodf)
+    print(shapes)
+    # shapes = af.read_geojson()  # read in list of county boundaries
 
     # NDVI_inDir = (r'C:\Users\Student\Documents\School\Senior design\dataset_by_county\input_data_files')  #Path to NDVI files
     #* note: dir setup for files should be as follows:
