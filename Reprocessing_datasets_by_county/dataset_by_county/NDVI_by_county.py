@@ -1,3 +1,14 @@
+# NOTES: this file runs smoothly on my machine (no errors and no output)
+#   if it doesn't run on yours, it might be because of the dir setup (see below)
+
+# Directory setup notes: in the same dir as this .py file, there should be
+# the PreprocessingAuxiliaryFunctions.py, and 2 data folders: 
+# input_data_files (all the NDVI images) and burn_area_files. Within the burn_are_files
+# there should be 2 essential folders, burn_date and QA. If all is correct, you shouldn't
+# need to reconfigure anything because of the function that uses relative paths 
+# (af.create_abs_path_from_relative('rel_path')). If you have questions or want to verify the setup
+# Please send me a message on discord
+
 import fiona
 import rasterio
 import rasterio.mask
@@ -16,7 +27,7 @@ from PreprocessingAuxiliaryFunctions import PreprocessingAuxiliaryFunctions as a
 
 def main():
     af = auxFuncts()
-    
+
     shapes = af.read_geojson()  # read in list of county boundaries
 
     # NDVI_inDir = (r'C:\Users\Student\Documents\School\Senior design\dataset_by_county\input_data_files')  #Path to NDVI files

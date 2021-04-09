@@ -1,3 +1,13 @@
+# NOTES: this runs without errors for me (Makoto). Haven't done checking except until line 38
+
+# Directory setup notes: in the same dir as this .py file, there should be
+# the PreprocessingAuxiliaryFunctions.py, and 2 data folders: 
+# input_data_files (all the NDVI images) and burn_area_files. Within the burn_are_files
+# there should be 2 essential folders, burn_date and QA. If all is correct, you shouldn't
+# need to reconfigure anything because of the function that uses relative paths 
+# (af.create_abs_path_from_relative('rel_path')). If you have questions or want to verify the setup
+# Please send me a message on discord
+
 # Import libraries
 import os
 import glob
@@ -22,9 +32,9 @@ os.chdir(NDVI_inDir)                                                            
 outDir = os.path.normpath(os.path.split(BAinDir)[0] + os.sep + 'output') + '\\' # Create and set output directory
 if not os.path.exists(outDir): os.makedirs(outDir)
 
-EVIFiles = glob.glob('MOD13A1.006__500m_16_days_NDVI_**.tif')             # Search for and create a list of EVI files
-EVIqualityFiles =glob.glob('MOD13A1.006__500m_16_days_VI_Quality**.tif')  # Search the directory for the associated quality .tifs
-EVIlut = glob.glob('MOD13A1-006-500m-16-days-VI-Quality-lookup.csv')                                        # Search for look up table 
+EVIFiles        = glob.glob('MOD13A1.006__500m_16_days_NDVI_**.tif')             # Search for and create a list of EVI files
+EVIqualityFiles = glob.glob('MOD13A1.006__500m_16_days_VI_Quality**.tif')  # Search the directory for the associated quality .tifs
+EVIlut          = glob.glob('MOD13A1-006-500m-16-days-VI-Quality-lookup.csv')                                        # Search for look up table 
 
 EVI_v6_QA_lut = pd.read_csv(EVIlut[0])                                    # Read in the lut
 

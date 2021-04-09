@@ -1,0 +1,12 @@
+Value,Grid cell type,Special circumstances unburned,Valid data,Shortened mapping period,Grid cell relabeled algorithm,Spare
+0,Water,"None or not applicable (i.e., burned, unmapped, or water grid cell)",False,False,False,
+1,Land,"None or not applicable (i.e., burned, unmapped, or water grid cell)",False,False,False,
+3,Land,"None or not applicable (i.e., burned, unmapped, or water grid cell)",True,False,False,
+7,Land,"None or not applicable (i.e., burned, unmapped, or water grid cell)",True,True,False,
+11,Land,"None or not applicable (i.e., burned, unmapped, or water grid cell)",True,False,True,
+15,Land,"None or not applicable (i.e., burned, unmapped, or water grid cell)",True,True,True,
+35,Land,Valid observations spaced too sparsely in time,True,False,False,
+67,Land,Too few training observations or insufficient spectral separability between burned and unburned classes,True,False,False,
+71,Land,Too few training observations or insufficient spectral separability between burned and unburned classes,True,True,False,
+99,Land,Apparent burn date at limits of time series,True,False,False,
+131,Land,"None or not applicable (i.e., burned, unmapped, or water grid cell)",True,False,False,
