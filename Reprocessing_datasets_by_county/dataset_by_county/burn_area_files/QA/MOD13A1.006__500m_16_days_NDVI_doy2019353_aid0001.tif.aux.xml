@@ -1,0 +1,17 @@
+<PAMDataset>
+  <Metadata>
+    <MDI key="add_offset">0</MDI>
+    <MDI key="scale_factor">0.0001</MDI>
+    <MDI key="units">NA</MDI>
+  </Metadata>
+  <PAMRasterBand band="1">
+    <Metadata>
+      <MDI key="STATISTICS_APPROXIMATE">YES</MDI>
+      <MDI key="STATISTICS_MAXIMUM">9659</MDI>
+      <MDI key="STATISTICS_MEAN">3958.6982273644</MDI>
+      <MDI key="STATISTICS_MINIMUM">-1865</MDI>
+      <MDI key="STATISTICS_STDDEV">2480.0024223724</MDI>
+      <MDI key="STATISTICS_VALID_PERCENT">42.23</MDI>
+    </Metadata>
+  </PAMRasterBand>
+</PAMDataset>
