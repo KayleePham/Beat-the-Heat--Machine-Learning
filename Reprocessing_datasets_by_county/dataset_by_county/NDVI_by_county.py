@@ -77,6 +77,7 @@ def main():
     EVIScaled = EVIData * EVIscaleFactor 
 
     EVI_masked = np.ma.MaskedArray(EVIScaled, np.in1d(EVIqualityData, EVIgoodQuality, invert = True))# Apply QA mask to the EVI data
+    print(EVI_masked.compressed())
 
 
     # EVI_masked
