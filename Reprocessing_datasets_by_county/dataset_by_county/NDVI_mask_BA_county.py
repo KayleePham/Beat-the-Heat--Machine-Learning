@@ -68,7 +68,7 @@ def main():
     NDVI_result = []
 
     # Traverse through the list of NDVI files 
-    for i in range(0, len(EVIFiles)):
+    for i in range(45, len(EVIFiles)):
         os.chdir(af.NDVI_inDir)
         EVI         = gdal.Open(EVIFiles[i])                                        # Read file in, starting with MOD13Q1 version 6 #* in dir input_files
         EVIquality  = gdal.Open(EVIqualityFiles[i])                                 # Open the first quality file
@@ -130,7 +130,7 @@ def main():
             EVI_BA      = np.ma.MaskedArray(EVI_masked, np.in1d(BA_masked, BAVal, invert = True))                   # Mask array, include only BurnArea
             EVI_mean    = np.mean(EVI_BA.compressed())   
             currentTime = timer() - start                                                           # Get EVI mean value of the Burn Area
-            print('index: {}  --- CountyID: {}   ---- Time Elapsed: {}'.format(i,county_fip, currentTime))
+            print('index: {}  --- FilaName: {}   --- CountyID: {}   ---- Time Elapsed: {}'.format(i, EVIFiles[i],county_fip, currentTime))
             print('BA_masked: {}\nEVI_masked: {}\nEVI_BA: {}'.format(BA_masked.shape,EVI_masked.shape, EVI_BA.shape))
             print('BA_masked: {}\nEVI_masked: {}\nEVI_BA: {}'.format(BA_masked.compressed(),EVI_masked.compressed(), EVI_BA.compressed()))
 
@@ -139,9 +139,9 @@ def main():
             x = x+1    
     
     # add header to output dataframe
-    result_df = pd.DataFrame(NDVI_result, columns=["Date","NDVI"])
+    result_df = pd.DataFrame(NDVI_result, columns=["County_FIP", "Date","NDVI"])
     result_df['Date'] = pd.to_datetime(result_df['Date'], format='%m/%d/%Y')
-    result_df = result_df.set_index('Date')
+    result_df = result_df.set_index('County_FIP')
     result_series = result_df.resample('D').mean()
 
     result_series["NDVI"] = result_series["NDVI"].interpolate(method='linear')
