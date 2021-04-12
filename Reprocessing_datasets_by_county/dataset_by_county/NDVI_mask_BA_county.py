@@ -27,6 +27,7 @@ from PreprocessingAuxiliaryFunctions import PreprocessingAuxiliaryFunctions as a
 
 def main():
     af = auxFuncts()
+    af.create_paths()
 
     CA_counties_geodf = af.read_geojson_geodf()
     shapes = af.extract_shapes_from_county_geometry(CA_counties_geodf)
@@ -35,15 +36,7 @@ def main():
     # print(shapes)
     # shapes = af.read_geojson()  # read in list of county boundaries
 
-
-    # Setting up input directories
-    out_dir = af.create_abs_path_from_relative('output')
-    BAinDir = af.create_abs_path_from_relative('burn_area_files\\burn_date')  # i think this is being used for BA and QA
-    NDVI_inDir = af.create_abs_path_from_relative('input_data_files')
-    BA_burn_date_dir = af.create_abs_path_from_relative('burn_area_files\\burn_date')
-    BA_QA_dir = af.create_abs_path_from_relative('burn_area_files\\QA')
-
-    out_dir = os.path.normpath(os.path.split(BAinDir)[0] + os.sep + 'output') + '\\'  # Create and set output directory
+    out_dir = os.path.normpath(os.path.split(af.BA_burn_date_dir)[0] + os.sep + 'output') + '\\'  # Create and set output directory
     if not os.path.exists(out_dir): os.makedirs(out_dir)
     
     # NDVI_inDir = (r'C:\Users\Student\Documents\School\Senior design\dataset_by_county\input_data_files')  #Path to NDVI files
@@ -51,7 +44,7 @@ def main():
     #* \GitHub\Beat-the-Heat--Machine-Learning\Reprocessing_datasets_by_county\dataset_by_county\NDVI_by_county.py
     #* within the 'dataset_by_county' folder, also include the NDVI dataset in a folder named 'input_data_files'
     home_dir = os.getcwd()
-    os.chdir(NDVI_inDir)                                                            # Change to working directory
+    os.chdir(af.NDVI_inDir)                                                            # Change to working directory
     EVIFiles        = glob.glob('MOD13A1.006__500m_16_days_NDVI_**.tif')            # Search for and create a list of EVI files
     EVIqualityFiles = glob.glob('MOD13A1.006__500m_16_days_VI_Quality**.tif')       # Search the directory for the associated quality .tifs
     EVIlut          = glob.glob('MOD13A1-006-500m-16-days-VI-Quality-lookup.csv')   # Search for look up table 
@@ -59,11 +52,11 @@ def main():
     EVIgoodQuality = af.extracting_good_quality_vals_from_NDVI_lut(EVI_v6_QA_lut)   # print(EVIqualityFiles)  # debugging output
 
     ###### Burn Area Files
-    os.chdir(BA_burn_date_dir)                                                      # Change to working directory
+    os.chdir(af.BA_burn_date_dir)                                                      # Change to working directory
     BAFiles         = glob.glob('MCD64A1.006_Burn_Date_**.tif')                     # Search for and create a list of BA files
-    os.chdir(BA_QA_dir) 
+    os.chdir(af.BA_QA_dir) 
     BAqualityFiles  = glob.glob('MCD64A1.006_QA_**.tif')                            # Search the directory for the associated quality .tifs
-    os.chdir(NDVI_inDir)                                                            # LUTs are in NDVI folder
+    os.chdir(af.NDVI_inDir)                                                            # LUTs are in NDVI folder
     BAlut           = glob.glob('MCD64A1-006-QA-lookup.csv')                        # Search for BA look up table 
     v6_BAQA_lut     = pd.read_csv(BAlut[0])                                           # Read in the lut
     BAgoodQuality   = af.extracting_good_quality_vals_from_BA_lut(v6_BAQA_lut)      # Retrieve list of possible QA values from the quality dataframe
@@ -74,23 +67,28 @@ def main():
 
     # Traverse through the list of NDVI files 
     for i in range(0, len(EVIFiles)):
-        os.chdir(NDVI_inDir)
+        os.chdir(af.NDVI_inDir)
         EVI         = gdal.Open(EVIFiles[i])                                        # Read file in, starting with MOD13Q1 version 6 #* in dir input_files
         EVIquality  = gdal.Open(EVIqualityFiles[i])                                 # Open the first quality file
-
+        
+        EVI_meta = EVI.GetMetadata()                                                # Store metadata in dictionary
+        EVIscaleFactor = float(EVI_meta['scale_factor'])                              # Search the metadata dictionary for the scale factor 
+        
         EVIdate     = af.getEVI_Date_Year_Month(EVIFiles[i], "D")                   # Get the Date of the file in format MM/DD/YYYY
         EVI_year    = af.getEVI_Date_Year_Month(EVIFiles[i], "Y")                   # Get the year of the file 
         EVI_month   = af.getEVI_Date_Year_Month(EVIFiles[i], "M")                   # Get the month of the file
+        os.chdir(af.BA_burn_date_dir)
         BAFileName  = af.getBAFileName(BAFiles, EVI_month, EVI_year)                # Get BA filename for the current NDVI file
+        os.chdir(af.BA_QA_dir)
         BAQAFileName= af.getBAFileName(BAqualityFiles, EVI_month, EVI_year)         # Get BA QA filename for the current NDVI file
         for county_masked in shapes:
 
-            af.maskByShapefileAndStore(EVIFiles[i],EVIqualityFiles[i], BAFileName, BAQAFileName, county_masked)
-            os.chdir(out_dir) 
+            af.maskByShapefileAndStore(EVIFiles[i],EVIqualityFiles[i], BAFileName, BAQAFileName, county_masked, EVIscaleFactor)
             ###--------------------------------------------------------------------------###
             ###    OPEN ALL 4 temporary files created get Quality data and mask by BA    ###
             ###--------------------------------------------------------------------------###
             ##--------------------------------------------------------------------------
+            os.chdir(af.out_dir)                                                    # out_dir is where output from last step is
             EVI         = gdal.Open(af.EVI_temp)                                    # Read EVI temporary file for current county in the loop
             EVIBand     = EVI.GetRasterBand(1)                                      # Read the band (layer)
             EVIData     = EVIBand.ReadAsArray().astype('float')                     # Import band as an array with type float
@@ -103,27 +101,27 @@ def main():
             BABand      = BA.GetRasterBand(1)                                       # Read the band (layer)
             BAData      = BABand.ReadAsArray().astype('float')                      # Import band as an array with type float
             ##--------------------------------------------------------------------------
-            BAquality   = gdal.Open(af.BAQA_temp)                                   # Open temporary BA quality file
+            BAquality     = gdal.Open(af.BAQA_temp)                                   # Open temporary BA quality file
             BAqualityData = BAquality.GetRasterBand(1).ReadAsArray()                # Read in as an array
-            BAquality = None 
+            BAquality     = None 
             #--------------------------------------------------------------------------
             # File Metadata
-            BA_meta = BA.GetMetadata()                        # Store metadata in dictionary
-            EVI_meta = EVI.GetMetadata()                      # Store metadata in dictionary
+            EVI_meta    = EVI.GetMetadata() 
+            BA_meta     = BA.GetMetadata() 
 
             # Band metadata
-            BAFill = BABand.GetNoDataValue()                  # Returns fill value
-            BA = None                                         # Close the GeoTIFF file
+            BAFill      = BABand.GetNoDataValue()                  # Returns fill value
+            BA          = None                                         # Close the GeoTIFF file
 
             # Band metadata
             EVIFill = EVIBand.GetNoDataValue()                # Returns fill value
             EVI = None                                        # Close the GeoTIFF file
 
-            BAscaleFactor = float(BA_meta['scale_factor'])    # Search the metadata dictionary for the scale factor 
+            #BAscaleFactor = float(BA_meta['scale_factor']) 
             BAData[BAData == BAFill] = np.nan                 # Set the fill value equal to NaN for the array
-            BAScaled = BAData * BAscaleFactor                 # Apply the scale factor using simple multiplication
+            BAScaled = BAData  #* BAscaleFactor                 # Apply the scale factor using simple multiplication
 
-            EVIscaleFactor = float(EVI_meta['scale_factor'])  # Search the metadata dictionary for the scale factor 
+            EVIscaleFactor =  float(0.0001)                          #float(EVI_meta['scale_factor'])  # Search the metadata dictionary for the scale factor 
             EVIData[EVIData == EVIFill] = np.nan              # Set the fill value equal to NaN for the array
             EVIScaled = EVIData * EVIscaleFactor              # Apply the scale factor using simple multiplication
 
@@ -143,7 +141,7 @@ def main():
     result_series = result_df.resample('D').mean()
 
     result_series["NDVI"] = result_series["NDVI"].interpolate(method='linear')
-    os.chdir(out_dir)
+    os.chdir(af.out_dir)
     result_series.to_csv('NDVI2019_2020.csv', index = True)  # Export statistics to CSV
     print(result_series)  
 

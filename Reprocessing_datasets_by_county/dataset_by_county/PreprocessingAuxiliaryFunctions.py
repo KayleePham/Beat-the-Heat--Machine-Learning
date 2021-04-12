@@ -5,12 +5,27 @@ import datetime as dt
 import os
 
 class PreprocessingAuxiliaryFunctions:
-    EVI_temp    = "EVI_temp.tif"
-    EVIQA_temp  = "EVIQA_temp.tif"
-    BA_temp     = "BA_temp.tif"
-    BAQA_temp   = "BAQA_temp.tif"
+
 
     def __init__(self):
+        # Setting up input directories
+        self.out_dir = self.create_abs_path_from_relative('burn_area_files\\output')
+        #self.BAinDir = self.create_abs_path_from_relative('burn_area_files\\burn_date')
+        self.NDVI_inDir = self.create_abs_path_from_relative('input_data_files')
+        self.BA_burn_date_dir = self.create_abs_path_from_relative('burn_area_files\\burn_date')
+        self.BA_QA_dir = self.create_abs_path_from_relative('burn_area_files\\QA')
+        self.EVI_temp    = "EVI_temp.tif"
+        self.EVIQA_temp  = "EVIQA_temp.tif"
+        self.BA_temp     = "BA_temp.tif"
+        self.BAQA_temp   = "BAQA_temp.tif"
+
+    def create_abs_path_from_relative(self,relative_dir_path):
+        """ Creates relative path from current directory to input file: 'input_data_files' in project dir """
+        absolutepath = os.path.abspath(__file__)
+        fileDirectory = os.path.dirname(absolutepath)
+        return os.path.join(fileDirectory, relative_dir_path)  #Navigate to relative_dir_path directory
+
+    def create_paths(self):
         pass
 
     def read_geojson(self):
@@ -72,12 +87,6 @@ class PreprocessingAuxiliaryFunctions:
         return BAgoodQuality
 
 
-    def create_abs_path_from_relative(self,relative_dir_path):
-        """ Creates relative path from current directory to input file: 'input_data_files' in project dir """
-        absolutepath = os.path.abspath(__file__)
-        fileDirectory = os.path.dirname(absolutepath)
-        return os.path.join(fileDirectory, relative_dir_path)  #Navigate to relative_dir_path directory
-
     def go_to_parent_dir(self):
         path_parent = os.path.dirname(os.getcwd())
         os.chdir(path_parent)
@@ -113,22 +122,23 @@ class PreprocessingAuxiliaryFunctions:
         else:
             return(EVIdate)
 
-    def maskByShapefileAndStore(self,EVIFile, EVIqualityFile, BAFileName, BAQAFileName, county_shape):
+    def maskByShapefileAndStore(self, EVIFile, EVIqualityFile, BAFileName, BAQAFileName, county_shape, EVI_scale_factor):
         # Change to NDVI directory
-        os.chdir(NDVI_inDir)
-        EVIFile     = rasterio.open(EVIFile, 'r+')                                              # load NDVI tif file    
+        os.chdir(self.NDVI_inDir) #~ i think this is all it needs come back to this
+        EVIFile     = rasterio.open(EVIFile, 'r+')                                              # load NDVI 
         EVIQAFile   = rasterio.open(EVIqualityFile, 'r+')                                       # load NDVI QA tif file
 
         # Change to BA directory    
-        os.chdir(BA_burn_date_dir)
+        os.chdir(self.BA_burn_date_dir)
         BAFile      = rasterio.open(BAFileName, 'r+')                                           # load BA tif file
+        os.chdir(self.BA_QA_dir)
         BAQAFile    = rasterio.open(BAQAFileName, 'r+')                                         # load BA QA tif file
 
         # Mask all 4 tif files by the shapefile
-        EVI_out_image, EVI_out_transform     = rasterio.mask.mask(EVIFile, shape, crop=True)    # 
-        EVIQA_out_image, EVIQA_out_transform = rasterio.mask.mask(EVIQAFile, shape, crop=True)  # 
-        BA_out_image, BA_out_transform       = rasterio.mask.mask(BAFile, shape, crop=True)     # 
-        BAQA_out_image, BAQA_out_transform   = rasterio.mask.mask(BAQAFile, shape, crop=True)   # 
+        EVI_out_image, EVI_out_transform     = rasterio.mask.mask(EVIFile, county_shape, crop=True)    # 
+        EVIQA_out_image, EVIQA_out_transform = rasterio.mask.mask(EVIQAFile, county_shape, crop=True)  # 
+        BA_out_image, BA_out_transform       = rasterio.mask.mask(BAFile, county_shape, crop=True)     # 
+        BAQA_out_image, BAQA_out_transform   = rasterio.mask.mask(BAQAFile, county_shape, crop=True)   # 
 
         # Get Metadata from source file and prepare for output file
         EVI_out_meta = EVIFile.meta                                                             #
@@ -137,17 +147,19 @@ class PreprocessingAuxiliaryFunctions:
         BAQA_out_meta = BAQAFile.meta                                                           #
 
         # Update output Matedata and send to a temp files.
-        send_to_file(EVI_out_meta, EVI_out_transform, EVI_out_image, EVI_temp)                  #
-        send_to_file(EVIQA_out_meta, EVIQA_out_transform, EVIQA_out_image, EVIQA_temp)          #
-        send_to_file(BA_out_meta, BA_out_transform, BA_out_image, BA_temp)                      #
-        send_to_file(BAQA_out_meta, BAQA_out_transform, BAQA_out_image, BAQA_temp)              #
+        self.send_to_file(EVI_out_meta, EVI_out_transform, EVI_out_image, self.EVI_temp, EVI_scale_factor)                  #
+        self.send_to_file(EVIQA_out_meta, EVIQA_out_transform, EVIQA_out_image, self.EVIQA_temp, EVI_scale_factor)          #
+        self.send_to_file(BA_out_meta, BA_out_transform, BA_out_image, self.BA_temp, "N/A")                                 #
+        self.send_to_file(BAQA_out_meta, BAQA_out_transform, BAQA_out_image, self.BAQA_temp, "N/A")                         #
 
-    def send_to_file(Metadata, out_transform, output_image, out_file_name):
+    def send_to_file(self, out_metadata, out_transform, output_image, out_file_name, scale_factor):
         out_metadata.update({"driver": "GTiff",
-                 "height": output_image.shape[1],
-                 "width": output_image.shape[2],
-                 "transform": out_transform})
-        os.chdir(out_dir)
+                "height": output_image.shape[1],
+                "width": output_image.shape[2],
+                "transform": out_transform,
+                "scale_factor":  scale_factor})
+
+        os.chdir(self.out_dir)
         with rasterio.open(out_file_name, "w", **out_metadata) as dest:
             dest.write(output_image)
 
