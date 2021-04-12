@@ -122,7 +122,7 @@ class PreprocessingAuxiliaryFunctions:
         else:
             return(EVIdate)
 
-    def maskByShapefileAndStore(self, EVIFile, EVIqualityFile, BAFileName, BAQAFileName, county_shape, EVI_scale_factor):
+    def maskByShapefileAndStore(self, EVIFile, EVIqualityFile, BAFileName, BAQAFileName, county_shape):
         # Change to NDVI directory
         os.chdir(self.NDVI_inDir) #~ i think this is all it needs come back to this
         EVIFile     = rasterio.open(EVIFile, 'r+')                                              # load NDVI 
@@ -147,17 +147,16 @@ class PreprocessingAuxiliaryFunctions:
         BAQA_out_meta = BAQAFile.meta                                                           #
 
         # Update output Matedata and send to a temp files.
-        self.send_to_file(EVI_out_meta, EVI_out_transform, EVI_out_image, self.EVI_temp, EVI_scale_factor)                  #
-        self.send_to_file(EVIQA_out_meta, EVIQA_out_transform, EVIQA_out_image, self.EVIQA_temp, EVI_scale_factor)          #
-        self.send_to_file(BA_out_meta, BA_out_transform, BA_out_image, self.BA_temp, "N/A")                                 #
-        self.send_to_file(BAQA_out_meta, BAQA_out_transform, BAQA_out_image, self.BAQA_temp, "N/A")                         #
+        self.send_to_file(EVI_out_meta, EVI_out_transform, EVI_out_image, self.EVI_temp)                  #
+        self.send_to_file(EVIQA_out_meta, EVIQA_out_transform, EVIQA_out_image, self.EVIQA_temp)          #
+        self.send_to_file(BA_out_meta, BA_out_transform, BA_out_image, self.BA_temp)                                 #
+        self.send_to_file(BAQA_out_meta, BAQA_out_transform, BAQA_out_image, self.BAQA_temp)                         #
 
-    def send_to_file(self, out_metadata, out_transform, output_image, out_file_name, scale_factor):
+    def send_to_file(self, out_metadata, out_transform, output_image, out_file_name):
         out_metadata.update({"driver": "GTiff",
                 "height": output_image.shape[1],
                 "width": output_image.shape[2],
-                "transform": out_transform,
-                "scale_factor":  scale_factor})
+                "transform": out_transform})
 
         os.chdir(self.out_dir)
         with rasterio.open(out_file_name, "w", **out_metadata) as dest:

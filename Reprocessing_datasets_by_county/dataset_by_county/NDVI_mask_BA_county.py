@@ -22,15 +22,17 @@ from osgeo import gdal
 import numpy as np
 import scipy.ndimage
 import datetime as dt
-
+from timeit import default_timer as timer
 from PreprocessingAuxiliaryFunctions import PreprocessingAuxiliaryFunctions as auxFuncts
 
 def main():
+    start = timer()
     af = auxFuncts()
     af.create_paths()
 
     CA_counties_geodf = af.read_geojson_geodf()
     shapes = af.extract_shapes_from_county_geometry(CA_counties_geodf)
+    COUNTY_FIPS = CA_counties_geodf['COUNTY_FIPS']
     #* note: if the shape file doesn't work, uncomment the line below (starting with "shapes = ...") this to fix
     # print(CA_counties_geodf)
     # print(shapes)
@@ -60,7 +62,7 @@ def main():
     BAlut           = glob.glob('MCD64A1-006-QA-lookup.csv')                        # Search for BA look up table 
     v6_BAQA_lut     = pd.read_csv(BAlut[0])                                           # Read in the lut
     BAgoodQuality   = af.extracting_good_quality_vals_from_BA_lut(v6_BAQA_lut)      # Retrieve list of possible QA values from the quality dataframe
-    BAVal = tuple(range(1, 367, 1))                                                 # List of numbers between 1-366. Used when masking by BA 
+    BAVal = tuple(range(0, 367, 1))                                                 # List of numbers between 1-366. Used when masking by BA 
     
     ## Initialize Dataframe for final results
     NDVI_result = []
@@ -71,9 +73,6 @@ def main():
         EVI         = gdal.Open(EVIFiles[i])                                        # Read file in, starting with MOD13Q1 version 6 #* in dir input_files
         EVIquality  = gdal.Open(EVIqualityFiles[i])                                 # Open the first quality file
         
-        EVI_meta = EVI.GetMetadata()                                                # Store metadata in dictionary
-        EVIscaleFactor = float(EVI_meta['scale_factor'])                              # Search the metadata dictionary for the scale factor 
-        
         EVIdate     = af.getEVI_Date_Year_Month(EVIFiles[i], "D")                   # Get the Date of the file in format MM/DD/YYYY
         EVI_year    = af.getEVI_Date_Year_Month(EVIFiles[i], "Y")                   # Get the year of the file 
         EVI_month   = af.getEVI_Date_Year_Month(EVIFiles[i], "M")                   # Get the month of the file
@@ -81,9 +80,10 @@ def main():
         BAFileName  = af.getBAFileName(BAFiles, EVI_month, EVI_year)                # Get BA filename for the current NDVI file
         os.chdir(af.BA_QA_dir)
         BAQAFileName= af.getBAFileName(BAqualityFiles, EVI_month, EVI_year)         # Get BA QA filename for the current NDVI file
+        x=0
         for county_masked in shapes:
-
-            af.maskByShapefileAndStore(EVIFiles[i],EVIqualityFiles[i], BAFileName, BAQAFileName, county_masked, EVIscaleFactor)
+            county_fip = COUNTY_FIPS[x]
+            af.maskByShapefileAndStore(EVIFiles[i],EVIqualityFiles[i], BAFileName, BAQAFileName, county_masked)
             ###--------------------------------------------------------------------------###
             ###    OPEN ALL 4 temporary files created get Quality data and mask by BA    ###
             ###--------------------------------------------------------------------------###
@@ -117,11 +117,10 @@ def main():
             EVIFill = EVIBand.GetNoDataValue()                # Returns fill value
             EVI = None                                        # Close the GeoTIFF file
 
-            #BAscaleFactor = float(BA_meta['scale_factor']) 
+            BAscaleFactor = float(1.0) 
             BAData[BAData == BAFill] = np.nan                 # Set the fill value equal to NaN for the array
-            BAScaled = BAData  #* BAscaleFactor                 # Apply the scale factor using simple multiplication
-
-            EVIscaleFactor =  float(0.0001)                          #float(EVI_meta['scale_factor'])  # Search the metadata dictionary for the scale factor 
+            BAScaled = BAData  * BAscaleFactor                 # Apply the scale factor using simple multiplication
+            EVIscaleFactor = float(0.0001)
             EVIData[EVIData == EVIFill] = np.nan              # Set the fill value equal to NaN for the array
             EVIScaled = EVIData * EVIscaleFactor              # Apply the scale factor using simple multiplication
 
@@ -129,10 +128,15 @@ def main():
             BA_masked   = np.ma.MaskedArray(BAScaled, np.in1d(BAqualityData, BAgoodQuality, invert = True))         # Apply QA mask to the BA data
             EVI_masked  = np.ma.MaskedArray(EVIScaled, np.in1d(EVIqualityData, EVIgoodQuality, invert = True))      # Apply QA mask to the EVI data
             EVI_BA      = np.ma.MaskedArray(EVI_masked, np.in1d(BA_masked, BAVal, invert = True))                   # Mask array, include only BurnArea
-            EVI_mean    = np.mean(EVI_BA.compressed())                                                              # Get EVI mean value of the Burn Area
-            
+            EVI_mean    = np.mean(EVI_BA.compressed())   
+            currentTime = timer() - start                                                           # Get EVI mean value of the Burn Area
+            print('index: {}  --- CountyID: {}   ---- Time Elapsed: {}'.format(i,county_fip, currentTime))
+            print('BA_masked: {}\nEVI_masked: {}\nEVI_BA: {}'.format(BA_masked.shape,EVI_masked.shape, EVI_BA.shape))
+            print('BA_masked: {}\nEVI_masked: {}\nEVI_BA: {}'.format(BA_masked.compressed(),EVI_masked.compressed(), EVI_BA.compressed()))
+
             #----- STORE IT IN RESULT DATAFRAME -----#
-            NDVI_result.append([EVIdate,EVI_mean])      
+            NDVI_result.append([county_fip,EVIdate,EVI_mean])
+            x = x+1    
     
     # add header to output dataframe
     result_df = pd.DataFrame(NDVI_result, columns=["Date","NDVI"])
