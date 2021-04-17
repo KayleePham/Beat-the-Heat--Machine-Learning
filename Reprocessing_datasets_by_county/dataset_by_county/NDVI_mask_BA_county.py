@@ -22,6 +22,7 @@ from osgeo import gdal
 import numpy as np
 import scipy.ndimage
 import datetime as dt
+
 from timeit import default_timer as timer
 from PreprocessingAuxiliaryFunctions import PreprocessingAuxiliaryFunctions as auxFuncts
 
@@ -46,7 +47,7 @@ def main():
     #* \GitHub\Beat-the-Heat--Machine-Learning\Reprocessing_datasets_by_county\dataset_by_county\NDVI_by_county.py
     #* within the 'dataset_by_county' folder, also include the NDVI dataset in a folder named 'input_data_files'
     home_dir = os.getcwd()
-    os.chdir(af.NDVI_inDir)                                                            # Change to working directory
+    os.chdir(af.NDVI_inDir)                                                         # Change to working directory
     EVIFiles        = glob.glob('MOD13A1.006__500m_16_days_NDVI_**.tif')            # Search for and create a list of EVI files
     EVIqualityFiles = glob.glob('MOD13A1.006__500m_16_days_VI_Quality**.tif')       # Search the directory for the associated quality .tifs
     EVIlut          = glob.glob('MOD13A1-006-500m-16-days-VI-Quality-lookup.csv')   # Search for look up table 
@@ -54,7 +55,7 @@ def main():
     EVIgoodQuality = af.extracting_good_quality_vals_from_NDVI_lut(EVI_v6_QA_lut)   # print(EVIqualityFiles)  # debugging output
 
     ###### Burn Area Files
-    os.chdir(af.BA_burn_date_dir)                                                      # Change to working directory
+    os.chdir(af.BA_burn_date_dir)                                                   # Change to working directory
     BAFiles         = glob.glob('MCD64A1.006_Burn_Date_**.tif')                     # Search for and create a list of BA files
     os.chdir(af.BA_QA_dir) 
     BAqualityFiles  = glob.glob('MCD64A1.006_QA_**.tif')                            # Search the directory for the associated quality .tifs
@@ -68,7 +69,7 @@ def main():
     NDVI_result = []
 
     # Traverse through the list of NDVI files 
-    for i in range(45, len(EVIFiles)):
+    for i in range(0, len(EVIFiles)):
         os.chdir(af.NDVI_inDir)
         EVI         = gdal.Open(EVIFiles[i])                                        # Read file in, starting with MOD13Q1 version 6 #* in dir input_files
         EVIquality  = gdal.Open(EVIqualityFiles[i])                                 # Open the first quality file
@@ -80,6 +81,8 @@ def main():
         BAFileName  = af.getBAFileName(BAFiles, EVI_month, EVI_year)                # Get BA filename for the current NDVI file
         os.chdir(af.BA_QA_dir)
         BAQAFileName= af.getBAFileName(BAqualityFiles, EVI_month, EVI_year)         # Get BA QA filename for the current NDVI file
+        BAscaleFactor = float(1.0)                                                  # Set BA Scale factor
+        EVIscaleFactor = float(0.0001)                                              # Set EVI Scale factor
         x=0
         for county_masked in shapes:
             county_fip = COUNTY_FIPS[x]
@@ -101,53 +104,43 @@ def main():
             BABand      = BA.GetRasterBand(1)                                       # Read the band (layer)
             BAData      = BABand.ReadAsArray().astype('float')                      # Import band as an array with type float
             ##--------------------------------------------------------------------------
-            BAquality     = gdal.Open(af.BAQA_temp)                                   # Open temporary BA quality file
+            BAquality     = gdal.Open(af.BAQA_temp)                                 # Open temporary BA quality file
             BAqualityData = BAquality.GetRasterBand(1).ReadAsArray()                # Read in as an array
             BAquality     = None 
             #--------------------------------------------------------------------------
-            # File Metadata
-            EVI_meta    = EVI.GetMetadata() 
-            BA_meta     = BA.GetMetadata() 
-
-            # Band metadata
-            BAFill      = BABand.GetNoDataValue()                  # Returns fill value
-            BA          = None                                         # Close the GeoTIFF file
-
-            # Band metadata
-            EVIFill = EVIBand.GetNoDataValue()                # Returns fill value
-            EVI = None                                        # Close the GeoTIFF file
-
-            BAscaleFactor = float(1.0) 
-            BAData[BAData == BAFill] = np.nan                 # Set the fill value equal to NaN for the array
-            BAScaled = BAData  * BAscaleFactor                 # Apply the scale factor using simple multiplication
-            EVIscaleFactor = float(0.0001)
-            EVIData[EVIData == EVIFill] = np.nan              # Set the fill value equal to NaN for the array
-            EVIScaled = EVIData * EVIscaleFactor              # Apply the scale factor using simple multiplication
-
+            BAScaled    = af.get_scaled_df(BABand,BAData,BAscaleFactor)             # Apply the scale factor using simple multiplication
+            BA          = None                                                      # Close the GeoTIFF file
+            EVIScaled   = af.get_scaled_df(EVIBand,EVIData,EVIscaleFactor)          # Apply the scale factor using simple multiplication
+            EVI         = None                                                      # Close the GeoTIFF file
+ 
             #----- MASK AND GET MEAN VALUE -----#
             BA_masked   = np.ma.MaskedArray(BAScaled, np.in1d(BAqualityData, BAgoodQuality, invert = True))         # Apply QA mask to the BA data
             EVI_masked  = np.ma.MaskedArray(EVIScaled, np.in1d(EVIqualityData, EVIgoodQuality, invert = True))      # Apply QA mask to the EVI data
             EVI_BA      = np.ma.MaskedArray(EVI_masked, np.in1d(BA_masked, BAVal, invert = True))                   # Mask array, include only BurnArea
-            EVI_mean    = np.mean(EVI_BA.compressed())   
-            currentTime = timer() - start                                                           # Get EVI mean value of the Burn Area
-            print('index: {}  --- FilaName: {}   --- CountyID: {}   ---- Time Elapsed: {}'.format(i, EVIFiles[i],county_fip, currentTime))
-            print('BA_masked: {}\nEVI_masked: {}\nEVI_BA: {}'.format(BA_masked.shape,EVI_masked.shape, EVI_BA.shape))
-            print('BA_masked: {}\nEVI_masked: {}\nEVI_BA: {}'.format(BA_masked.compressed(),EVI_masked.compressed(), EVI_BA.compressed()))
+            EVI_mean    = np.mean(EVI_BA.compressed())                                                              # Get EVI mean value of the Burn Area
+            currentTime = timer() - start                                                                           # calculate curretn running time
 
             #----- STORE IT IN RESULT DATAFRAME -----#
-            NDVI_result.append([county_fip,EVIdate,EVI_mean])
+            NDVI_result.append([EVIdate,EVI_mean, county_fip])
             x = x+1    
-    
-    # add header to output dataframe
-    result_df = pd.DataFrame(NDVI_result, columns=["County_FIP", "Date","NDVI"])
-    result_df['Date'] = pd.to_datetime(result_df['Date'], format='%m/%d/%Y')
-    result_df = result_df.set_index('County_FIP')
-    result_series = result_df.resample('D').mean()
 
-    result_series["NDVI"] = result_series["NDVI"].interpolate(method='linear')
+        #print running time    
+        print('index: {}  --- FileName: {}   ---- Time Elapsed: {}  seconds'.format(i, EVIFiles[i], round(currentTime,1)))
+
+    # add header to output dataframe
+    result_df = pd.DataFrame(NDVI_result, columns=["Date","NDVI","County_FIP"])
+    
+    #fill null values with mean
+    result_df['NDVI'].fillna(result_df['NDVI'].mean(), inplace=True)
+    
+    #sort values by county fip, then by date
+    result_df = result_df.sort_values(["County_FIP", "Date"], ascending=(True, True))
+
+    #change to output directory
     os.chdir(af.out_dir)
-    result_series.to_csv('NDVI2019_2020.csv', index = True)  # Export statistics to CSV
-    print(result_series)  
+
+    # Export statistics to CSV
+    result_df.to_csv('NDVI2019_2020.csv', index=False)  
 
 
 if __name__ == "__main__":

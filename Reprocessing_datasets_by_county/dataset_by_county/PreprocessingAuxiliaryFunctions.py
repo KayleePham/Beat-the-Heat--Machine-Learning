@@ -2,6 +2,10 @@ import geopandas as gpd
 import rasterio
 from rasterio import mask
 import datetime as dt
+from osgeo import gdal
+import numpy as np
+import scipy.ndimage
+import pandas as pd
 import os
 
 class PreprocessingAuxiliaryFunctions:
@@ -135,30 +139,36 @@ class PreprocessingAuxiliaryFunctions:
         BAQAFile    = rasterio.open(BAQAFileName, 'r+')                                         # load BA QA tif file
 
         # Mask all 4 tif files by the shapefile
-        EVI_out_image, EVI_out_transform     = rasterio.mask.mask(EVIFile, county_shape, crop=True)    # 
-        EVIQA_out_image, EVIQA_out_transform = rasterio.mask.mask(EVIQAFile, county_shape, crop=True)  # 
-        BA_out_image, BA_out_transform       = rasterio.mask.mask(BAFile, county_shape, crop=True)     # 
-        BAQA_out_image, BAQA_out_transform   = rasterio.mask.mask(BAQAFile, county_shape, crop=True)   # 
+        EVI_out_image, EVI_out_transform     = rasterio.mask.mask(EVIFile, county_shape, crop=True)     
+        EVIQA_out_image, EVIQA_out_transform = rasterio.mask.mask(EVIQAFile, county_shape, crop=True)   
+        BA_out_image, BA_out_transform       = rasterio.mask.mask(BAFile, county_shape, crop=True)      
+        BAQA_out_image, BAQA_out_transform   = rasterio.mask.mask(BAQAFile, county_shape, crop=True)   
 
         # Get Metadata from source file and prepare for output file
-        EVI_out_meta = EVIFile.meta                                                             #
-        EVIQA_out_meta = EVIQAFile.meta                                                         #
-        BA_out_meta = BAFile.meta                                                               #
-        BAQA_out_meta = BAQAFile.meta                                                           #
+        EVI_out_meta    = EVIFile.meta                                                                 
+        EVIQA_out_meta  = EVIQAFile.meta                                                               
+        BA_out_meta     = BAFile.meta                                                                  
+        BAQA_out_meta   = BAQAFile.meta                                                                
 
         # Update output Matedata and send to a temp files.
-        self.send_to_file(EVI_out_meta, EVI_out_transform, EVI_out_image, self.EVI_temp)                  #
-        self.send_to_file(EVIQA_out_meta, EVIQA_out_transform, EVIQA_out_image, self.EVIQA_temp)          #
-        self.send_to_file(BA_out_meta, BA_out_transform, BA_out_image, self.BA_temp)                                 #
-        self.send_to_file(BAQA_out_meta, BAQA_out_transform, BAQA_out_image, self.BAQA_temp)                         #
+        self.send_to_file(EVI_out_meta, EVI_out_transform, EVI_out_image, self.EVI_temp)               
+        self.send_to_file(EVIQA_out_meta, EVIQA_out_transform, EVIQA_out_image, self.EVIQA_temp)       
+        self.send_to_file(BA_out_meta, BA_out_transform, BA_out_image, self.BA_temp)                   
+        self.send_to_file(BAQA_out_meta, BAQA_out_transform, BAQA_out_image, self.BAQA_temp)           
 
     def send_to_file(self, out_metadata, out_transform, output_image, out_file_name):
-        out_metadata.update({"driver": "GTiff",
+        #update metadata
+        out_metadata.update({"driver": "GTiff",         
                 "height": output_image.shape[1],
                 "width": output_image.shape[2],
                 "transform": out_transform})
-
+        #change to output directory
         os.chdir(self.out_dir)
+        #write to file
         with rasterio.open(out_file_name, "w", **out_metadata) as dest:
             dest.write(output_image)
 
+    def get_scaled_df(self, df_band, df_data, df_scaled_factor):
+        df_fill                        = df_band.GetNoDataValue()                               # Returns fill value
+        df_data[df_data == df_fill]    = np.nan                                                 # Set the fill value equal to NaN for the MaskedArray
+        return (df_data * df_scaled_factor)                                                     # Return Dataframe Scaled
