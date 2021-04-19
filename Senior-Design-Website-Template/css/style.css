@@ -1,13 +1,9 @@
 body, html {
-    background-color: rgba(255, 255, 255, 0.863);
+    background-color: rgba(0, 0, 0, 0.863);
+    color: rgb(255, 255, 255);
     margin: 0;
     height: auto;
     font-family: 'Rubik', sans-serif;
-}
-
-.dark-theme {
-    background-color: rgba(0, 0, 0, 0.863);
-    color: rgb(255, 255, 255);
 }
 
 #incidents {
@@ -73,16 +69,14 @@ svg {
 }
 
 .img1 {
-    background-image: url("../images/pexels-pixabay-68482.jpg");
+    background-image: url("../images/portfolio-header.jpg");
     background-attachment: fixed;
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
-    height: 600px;
-    width: 100%;
+    height: 100vh;
     opacity: 0.90;
     top: 0;
-
 }
 
 .diagrams {
@@ -116,4 +110,77 @@ p {
     text-align: center;
     position: relative;
     top: 800px;
+}
+
+/* footer section */
+footer {
+  background: #1c1c1c;
+  padding-top: 60px;
+  padding-bottom: 60px;
+}
+footer .fa {
+    font-size: 18px;
+    margin-right: 10px;
+    padding: 5px;
+}
+footer h3 {
+  padding-bottom: 10px;
+}
+footer .newsletter p {
+  padding-bottom: 10px;
+}
+footer .form-control {
+  background: transparent;
+  border: 2px solid #fff;
+  border-radius: 0px;
+  padding-bottom: 10px;
+}
+
+footer .form-control:focus,
+footer .form-control:hover {
+    color: #fff;
+    background: #806040;
+    border-color: transparent;
+}
+footer .input-group-addon {
+  background: #fff;
+}
+footer a, footer a:visited {
+  font-size: 14px;
+  color: #999;
+}
+footer a:hover {
+  color: #fff;
+  text-decoration: none;
+}
+
+/* copyright section */
+.copyright {
+    margin: 10px 0px;
+}
+.copyright p {
+  padding-top: 20px;
+}
+.social-icons {
+  padding: 0px;
+  margin: 0px;
+}
+.social-icons li {
+  display: inline-block;
+  list-style: none;
+  background: #303030;
+  margin: 10px 0px 0px 0px;
+}
+.social-icons li a {
+  color: #909090;
+  text-decoration: none;
+  font-size: 20px;
+  padding: 10px 15px;
+  text-align: center;
+  transition: all 0.4s ease-in;
+  
+}
+.social-icons li a:hover {
+  background: #d54ab6;
+  color: #fff;
 }
