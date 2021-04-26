@@ -9,7 +9,7 @@ http://www.templatemo.com/tm-468-onetel
 body
 	{
 		background: #101010;
-    color: #808080;
+    color: #dadada;
 		font-family: 'Montserrat', sans-serif;
     font-weight: 400;
 	}
@@ -38,77 +38,9 @@ body
 	margin-top: 30px;
 }
 
-.ptext {
-  position: absolute;
-  top: 25%;
-  width: 100%;
-  text-align: center;
-  color: white;
-  font-size: 50px;
-  letter-spacing: 7px;
-  text-transform: uppercase;
-  font-weight: bold;
-}
-
-.welcome {
-    display: block;
-    margin-top: 8%;
-    margin-left: auto;
-    margin-right: auto;
-    border-style: solid;
-    color: white;
-    opacity: 1;
-    max-width: 700px;
-    padding: 15px;
-}
-
-.main_img {
-  background-image: url("../images/portfolio-header.jpg");
-  background-attachment: fixed;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-  height: 90vh;
-  opacity: 0.7;
-  /* top: 0; */
-}
-
-/* heading section */
-h1,h2,h3,h4 {
-  color: #fff;
-  font-weight: bold;
-}
-
-h1,h2 {
-  font-size: 30px;
-}
-
-/* images retina */
-img {
-  max-width: 100%;
-  height: auto;
-} 
-
-/* button section */
-.btn {
-  background: transparent;
-  border: 2px solid #fff;
-  border-radius: 0px;
-  box-shadow: none;
-  color: #fff;
-  padding: 12px 18px;
-  font-size: 13px;
-  font-weight: bold;
-  transition: all 0.4s ease-in;
-}
-.btn:hover {
-  background: #009988;
-  border-color: transparent;
-}
-
-.email {
-	margin-top: 10px;
-	padding: 8px 12px;
+.main_p {
+  text-indent: 40px;
+  font-size: 18px;
 }
 
 /* navigation */
@@ -150,76 +82,111 @@ logo {
   color: orange;
 }
 
-/*New Navi section*/
-/* .navbar-default {
-    background: #202020;
-    border: none;
-    border-left: 6px solid #D22030;
-    padding-right: 40px;
-    margin: 0 !important;
-    position: relative;
-    top: 20px;
-  }
-.navbar-default .navbar-brand {
-    font-size: 30px;
-    line-height: 40px;
-    padding-top: 4px;
-   }
- .navbar-default .navbar-header{
-	font-size: 30px;
-    line-height: 40px;
-    padding-top: 10px;	 
- }
-.navbar-default .navbar-nav li a {
-  color: #f2f2f2;
-  font-size: 13px;
-  font-weight: 400;
-  line-height: 40px;
+/* Parallax CSS */
+.main_img {
+  background-image: url("../images/portfolio-header.jpg");
+  background-attachment: fixed;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-blend-mode: lighten;
+  height: 90vh;
+}
+
+/* Parallax Text 1 */
+.ptext {
+  position: absolute;
+  top: 25%;
+  width: 100%;
+  text-align: center;
+  font-size: 50px;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+/* Parallax Text 2 */
+.welcome {
+    display: block;
+    margin-top: 8%;
+    margin-left: auto;
+    margin-right: auto;
+    border-style: solid;
+    color: rgb(255, 255, 255);
+    max-width: 700px;
+    padding: 15px;
+}
+
+/* Video Demo */
+.vids{
+  padding-top: 50px;
+}
+.vids h2 {
+  padding-bottom: 0px;
+}
+
+.tech {
+  display: inline;
+  width: 100px;
+  height: 100px;
+}
+
+#overview a {
+  font-size: 18px;
+  color: rgb(41, 112, 219)
+}
+
+/* heading section */
+h1,h2,h3,h4 {
+  color: #fff;
+  font-weight: bold;
+}
+
+h1,h2 {
+  font-size: 30px;
+  text-align: center;
+  padding-top: 30px;
+  padding-bottom: 10px;
+  text-decoration: underline;
+}
+h5 {
+  text-align: center;
+  padding-bottom: 30px;
+}
+
+/* images retina */
+img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 100%;
+  height: auto;
+} 
+
+/* button section */
+.btn {
+  background: transparent;
+  border: 2px solid #fff;
+  border-radius: 0px;
+  box-shadow: none;
+  color: #fff;
+  padding: 12px 18px;
+  font-size: 15px;
+  font-weight: bolder;
   transition: all 0.4s ease-in;
- }
-.navbar-default .navbar-nav > li > a:hover,
-.navbar-default .navbar-nav > li > a:focus {
-  color: #ffa500;
 }
-.navbar-default .navbar-nav > .active > a,
-.navbar-default .navbar-nav > .active > a:hover,
-.navbar-default .navbar-nav > .active > a:focus {
-  	color: #ffa500;
-  	background-color: transparent;
+.btn:hover {
+  background: #009988;
+  border-color: transparent;
 }
-.navbar-default .navbar-toggle {
-  	background: #d54ab6;
-  	border-radius: 0px;
-   	border: none;
-   	margin-top: 20px;
-   	margin-bottom: 30px;
+
+.email {
+	margin-top: 10px;
+	padding: 8px 12px;
 }
-.navbar-default .navbar-toggle .icon-bar {
-    background: #fff;
-    border-color: transparent;
-}
-.navbar-default .navbar-toggle:hover,
-.navbar-default .navbar-toggle:focus { 
-  background-color: transparent 
-} */
 
 .active {
 	background: #333;
-}
-
-/* home section */
-#home {
-  background: url('../images/portfolio-header.jpg') no-repeat;
-  background-size: cover;
-  background-position: center;
-  min-height: 200px;
-  padding-top: 180px;
-  padding-bottom: 100px;
-}
-#home h1,
-#home h3 {
-  line-height: 30px;
-  font-size: 40px;
 }
 
 /* divider section */
@@ -272,15 +239,12 @@ logo {
   padding: 20px;
   margin: 0px;
 }
-/* home section*/
-#home .col-md-5{
-	height: 120px;	
-}
+
 
 /* about section */
 #about-header {
   background: url('../images/portfolio-img10.jpg') no-repeat;
-  background-size: cover;
+  background-size:cover;
   background-position: center;
   min-height: 500px;
   padding-top: 160px;
@@ -304,6 +268,8 @@ logo {
   margin-top: 30px;
 }
 
+
+
 /* team section */
 #team {
   padding-top: 60px;
@@ -315,13 +281,23 @@ logo {
 }
 #team h3 {
   padding-bottom: 10px;
+  color:  #ff6a00;
 }
 #team .team-wrapper {
   border: 2px solid #303030;
   padding: 20px;
 }
+.team-wrapper h3, h4 {
+  text-align: center;
+}
+.team-wrapper h4 {
+  border-bottom-style: solid;
+  border-color: rgb(133, 130, 127);
+  padding-bottom: 15px;
+}
+
 #team h4 {
-  color: #e87420;
+  color: rgb(253, 106, 38);
 }
 #team img {
   opacity: 0.8;
@@ -339,6 +315,12 @@ logo {
 #team .progress {
   border-radius: 0px;
   height: 4px;
+}
+/* GitHub and LinkedIn Images */
+.about_img{
+  display: inline;
+  width: 35px;
+  height: 35px;
 }
 
 /* portfolio section */
