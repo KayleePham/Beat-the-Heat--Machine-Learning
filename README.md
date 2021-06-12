@@ -1,5 +1,5 @@
 # Beat the Heat
-is a computer science senior design project that uses machine learning to predict fire incidents based on sattelite data and past fire records. 
+is a computer science senior design project that uses machine learning to predict fire incidents in California based on sattelite data and past fire records. 
 
 # The purpose
 of this project is to apply new technologies to real world problems that are devistating people's lives and destroying forrests in California. Beat the Heat predicts whether or not there will be a fire in a region given the conditions on that day. The project does this both for the entire state of California as well as at the county level. The features/conditions from remote sensing data used for the models are land surface temperature (LST), thermal anomaly (TA, aka fire detector), and normalized difference vegetation index (NDVI, aka greenness). Another remote sensing feature, burned area, was also used to only examine data from areas that had been burned within a month of a specific day. The highest accuracy score at the state level was 93% for support vector machine, and 98% at the county level.
